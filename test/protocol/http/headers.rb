@@ -197,6 +197,33 @@ describe Protocol::HTTP::Headers do
 		end
 	end
 	
+	with "link headers" do
+		it "parses link headers according to the policy" do
+			headers = subject[[["link", '</style.css>; rel=stylesheet; title="A, B"']]]
+			link = headers["link"]
+			
+			expect(link).to be_a(Protocol::HTTP::Header::Link)
+			expect(link.entries.first.target).to be == "/style.css"
+			expect(link.entries.first.title).to be == "A, B"
+		end
+		
+		it "combines repeated link headers according to the policy" do
+			headers = subject[[
+			["link", "</a>; rel=next"],
+			["link", "</b>; rel=prev"],
+		]]
+			
+			expect(headers["link"].entries.map(&:target)).to be == ["/a", "/b"]
+		end
+		
+		it "coerces a link header assigned through #[]=" do
+			headers["link"] = "</a>; rel=next"
+			
+			expect(headers["link"]).to be_a(Protocol::HTTP::Header::Link)
+			expect(headers["link"].resolve("https://example.com/index")).to be == ["https://example.com/a"]
+		end
+	end
+	
 	with "#[]=" do
 		it "coerces range header values according to the policy" do
 			headers["range"] = "bytes=-4"
