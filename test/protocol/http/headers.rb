@@ -435,9 +435,11 @@ describe Protocol::HTTP::Headers do
 			let(:headers) {subject.new}
 			
 			permitted_trailers = [
+				"content-digest",
 				"date",
 				"digest",
 				"etag",
+				"repr-digest",
 				"server-timing",
 			]
 			
