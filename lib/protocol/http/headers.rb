@@ -23,6 +23,8 @@ require_relative "header/range"
 require_relative "header/trailer"
 require_relative "header/server_timing"
 require_relative "header/digest"
+require_relative "header/content_digest"
+require_relative "header/repr_digest"
 require_relative "header/generic"
 
 require_relative "header/accept"
@@ -413,6 +415,8 @@ module Protocol
 				
 				# Content integrity headers:
 				"digest" => Header::Digest,
+				"content-digest" => Header::ContentDigest,
+				"repr-digest" => Header::ReprDigest,
 			}.tap{|hash| hash.default = Header::Generic}
 			
 			# Delete all header values for the given key, and return the merged value.

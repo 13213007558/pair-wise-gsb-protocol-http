@@ -84,6 +84,8 @@ The trailer security system prevents HTTP request smuggling by restricting which
 **Allowed headers** (return `true` for `trailer?`):
 - `date` - Response generation timestamps.
 - `digest` - Content integrity verification.
+- `content-digest` - Message content integrity verification (RFC 9530).
+- `repr-digest` - Representation integrity verification (RFC 9530).
 - `etag` - Cache validation tags.
 - `server-timing` - Performance metrics.
 

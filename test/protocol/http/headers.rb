@@ -437,6 +437,8 @@ describe Protocol::HTTP::Headers do
 			permitted_trailers = [
 				"date",
 				"digest",
+				"content-digest",
+				"repr-digest",
 				"etag",
 				"server-timing",
 			]
