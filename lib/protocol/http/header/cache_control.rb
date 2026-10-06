@@ -26,11 +26,17 @@ module Protocol
 				# The `max-age` directive indicates the maximum amount of time, in seconds, that a response is considered fresh.
 				MAX_AGE = "max-age"
 				
-				# The `s-maxage` directive is similar to `max-age` but applies only to shared caches. If both `s-maxage` and `max-age` are present, `s-maxage` takes precedence in shared caches.
-				S_MAXAGE = "s-maxage"
-				
-				# The `static` directive is a custom directive often used to indicate that the resource is immutable or rarely changes, allowing longer caching periods.
-				STATIC = "static"
+			# The `s-maxage` directive is similar to `max-age` but applies only to shared caches. If both `s-maxage` and `max-age` are present, `s-maxage` takes precedence in shared caches.
+			S_MAXAGE = "s-maxage"
+			
+			# The `max-stale` directive indicates that the client is willing to accept a stale response. An optional value indicates the maximum amount of time, in seconds, the response may be stale by.
+			MAX_STALE = "max-stale"
+			
+			# The `min-fresh` directive indicates that the client wants a response that will still be fresh for at least the specified number of seconds.
+			MIN_FRESH = "min-fresh"
+			
+			# The `static` directive is a custom directive often used to indicate that the resource is immutable or rarely changes, allowing longer caching periods.
+			STATIC = "static"
 				
 				# The `dynamic` directive is a custom directive used to indicate that the resource is generated dynamically and may change frequently, requiring shorter caching periods.
 				DYNAMIC = "dynamic"
@@ -122,12 +128,30 @@ module Protocol
 					find_integer_value(MAX_AGE)
 				end
 				
-				# @returns [Integer | Nil] the value of the `s-maxage` directive in seconds, or `nil` if the directive is not present or invalid.
-				def s_maxage
-					find_integer_value(S_MAXAGE)
+			# @returns [Integer | Nil] the value of the `s-maxage` directive in seconds, or `nil` if the directive is not present or invalid.
+			def s_maxage
+				find_integer_value(S_MAXAGE)
+			end
+			
+			# @returns [Integer | true | Nil] the value of the `max-stale` directive in seconds, `true` if the directive is present without a value (any staleness is accepted), or `nil` if the directive is not present.
+			def max_stale
+				if value = self.find{|value| value.start_with?(MAX_STALE)}
+					_, seconds = value.split("=", 2)
+					
+					if seconds.nil?
+						return true
+					elsif seconds =~ /\A[0-9]+\z/
+						return Integer(seconds)
+					end
 				end
-				
-				private
+			end
+			
+			# @returns [Integer | Nil] the value of the `min-fresh` directive in seconds, or `nil` if the directive is not present or invalid.
+			def min_fresh
+				find_integer_value(MIN_FRESH)
+			end
+			
+			private
 				
 				# Finds and parses an integer value from a directive.
 				#
@@ -146,4 +170,3 @@ module Protocol
 		end
 	end
 end
-

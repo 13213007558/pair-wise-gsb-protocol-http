@@ -38,6 +38,24 @@ describe Protocol::HTTP::Header::CacheControl do
 		end
 	end
 	
+	with "max-stale=60, min-fresh=10" do
+		it "correctly parses cache header" do
+			expect(header).to have_attributes(
+				max_stale: be == 60,
+				min_fresh: be == 10,
+			)
+		end
+	end
+	
+	with "max-stale" do
+		it "correctly parses cache header without a value" do
+			expect(header).to have_attributes(
+				max_stale: be == true,
+				min_fresh: be == nil,
+			)
+		end
+	end
+	
 	with "static" do
 		it "correctly parses cache header" do
 			expect(header).to have_attributes(
