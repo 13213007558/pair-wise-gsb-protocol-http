@@ -28,12 +28,30 @@ describe Protocol::HTTP::Header::CacheControl do
 			)
 		end
 	end
-	
+
+	with "x-max-age=60, s-maxage-extra=30" do
+		it "does not match directive prefixes" do
+			expect(header).to have_attributes(
+				max_age: be == nil,
+				s_maxage: be == nil
+			)
+		end
+	end
+
 	with "no-cache, no-store" do
 		it "correctly parses cache header" do
 			expect(header).to have_attributes(
 				no_cache?: be == true,
 				no_store?: be == true,
+			)
+		end
+	end
+
+	with "max-stale, max-stale=10, min-fresh=5" do
+		it "parses request freshness directives" do
+			expect(header).to have_attributes(
+				max_stale: be == Float::INFINITY,
+				min_fresh: be == 5
 			)
 		end
 	end

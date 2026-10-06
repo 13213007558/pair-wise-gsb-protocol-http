@@ -28,6 +28,12 @@ module Protocol
 				
 				# The `s-maxage` directive is similar to `max-age` but applies only to shared caches. If both `s-maxage` and `max-age` are present, `s-maxage` takes precedence in shared caches.
 				S_MAXAGE = "s-maxage"
+
+				# The `max-stale` request directive indicates that the client accepts a response that has exceeded its freshness lifetime.
+				MAX_STALE = "max-stale"
+
+				# The `min-fresh` request directive indicates that the client wants a response that will remain fresh for at least the specified number of seconds.
+				MIN_FRESH = "min-fresh"
 				
 				# The `static` directive is a custom directive often used to indicate that the resource is immutable or rarely changes, allowing longer caching periods.
 				STATIC = "static"
@@ -126,24 +132,49 @@ module Protocol
 				def s_maxage
 					find_integer_value(S_MAXAGE)
 				end
+
+				# @returns [Integer | Float | Nil] the value of the `max-stale` directive, infinity when it has no value, or `nil` if absent.
+				def max_stale
+					each_directive do |name, value|
+						if name == MAX_STALE
+							return Float::INFINITY if value.nil?
+							return Integer(value) if value =~ /\A[0-9]+\z/
+						end
+					end
+
+					nil
+				end
+
+				# @returns [Integer | Nil] the value of the `min-fresh` directive in seconds, or `nil` if the directive is not present or invalid.
+				def min_fresh
+					find_integer_value(MIN_FRESH)
+				end
 				
 				private
+
+				def each_directive
+					self.each do |directive|
+						name, raw_value = directive.split("=", 2)
+						name = name.strip
+						value = raw_value&.strip
+						yield(name, value)
+					end
+				end
 				
 				# Finds and parses an integer value from a directive.
 				#
 				# @parameter value_name [String] the directive name to search for (e.g., "max-age").
 				# @returns [Integer | Nil] the parsed integer value, or `nil` if not found or invalid.
 				def find_integer_value(value_name)
-					if value = self.find{|value| value.start_with?(value_name)}
-						_, age = value.split("=", 2)
-						
-						if age =~ /\A[0-9]+\z/
-							return Integer(age)
+					each_directive do |name, value|
+						if name == value_name && value =~ /\A[0-9]+\z/
+							return Integer(value)
 						end
 					end
+
+					nil
 				end
 			end
 		end
 	end
 end
-
