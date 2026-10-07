@@ -56,6 +56,48 @@ auth = Protocol::HTTP::Header::Authorization.basic("username", "password")
 # => "Basic dXNlcm5hbWU6cGFzc3dvcmQ="
 ```
 
+
+### Content Security Policy
+
+The `content-security-policy` header can be specified multiple times, and each entry is parsed as an independent policy. Policies can be evaluated offline against a resource type, URL, and nonce/hash context — useful for debugging why a resource was blocked when several layers of CSP are in play:
+
+```ruby
+headers = Protocol::HTTP::Headers.new
+headers.add("content-security-policy", "default-src 'none'; script-src 'self'")
+headers.add("content-security-policy", "script-src https://cdn.example.com")
+headers.add("content-security-policy-report-only", "script-src https:")
+
+csp = headers["content-security-policy"]
+report_only = headers["content-security-policy-report-only"]
+
+result = csp.evaluate("script", "https://cdn.example.com/app.js",
+	origin: "https://example.com", report_only: report_only)
+
+result.allowed? # => false
+
+# One verdict per policy, including the directive which actually took effect:
+result.verdicts # => [
+#   block (script-src),                            # 'self' did not match
+#   allow (script-src matched "https://cdn.example.com"),
+#   allow (script-src matched "https:")          # report-only, does not affect the result
+# ]
+```
+
+Enforcing policies are **intersected** — a resource must be allowed by every policy — rather than merged into a single source list:
+
+```ruby
+csp = Protocol::HTTP::Header::ContentSecurityPolicy.coerce([
+	"script-src 'self'",
+	"script-src https://cdn.example.com",
+])
+
+# Merging the source lists would allow both URLs; intersection allows neither:
+csp.allows?("script", "https://cdn.example.com/app.js", origin: "https://example.com") # => false
+csp.allows?("script", "https://example.com/app.js", origin: "https://example.com") # => false
+```
+
+Directives fall back to `default-src` when a specific fetch directive is absent, `'strict-dynamic'` disables host-based matching for scripts, and report-only policies are evaluated for visibility but never change the outcome. Unknown directives are preserved in {ruby Protocol::HTTP::Header::ContentSecurityPolicy::Policy#directives}.
+
 ### Trailer Security
 
 HTTP trailers are headers that appear after the message body. For security reasons, only certain headers are allowed in trailers:
