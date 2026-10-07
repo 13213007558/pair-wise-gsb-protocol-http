@@ -29,6 +29,7 @@ require_relative "header/accept"
 require_relative "header/accept_charset"
 require_relative "header/accept_encoding"
 require_relative "header/accept_language"
+require_relative "header/instance_manipulations"
 require_relative "header/transfer_encoding"
 require_relative "header/te"
 
@@ -377,6 +378,7 @@ module Protocol
 				
 				# Cache validations:
 				"etag" => Header::ETag,
+				"delta-base" => Header::ETag,
 				"if-match" => Header::ETags,
 				"if-none-match" => Header::ETags,
 				"if-range" => false,
@@ -403,6 +405,8 @@ module Protocol
 				"accept-charset" => Header::AcceptCharset,
 				"accept-encoding" => Header::AcceptEncoding,
 				"accept-language" => Header::AcceptLanguage,
+				"a-im" => Header::InstanceManipulations,
+				"im" => Header::InstanceManipulations,
 				
 				# Content negotiation headers:
 				"content-encoding" => Header::Split,

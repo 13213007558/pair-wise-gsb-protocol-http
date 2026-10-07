@@ -30,7 +30,19 @@ module Protocol
 		class InvalidHeaderError < Error
 			include BadRequest
 		end
-		
+
+		# Raised when an unsupported instance manipulation or delta encoding feature is requested.
+		class UnsupportedInstanceManipulationError < Error
+		end
+
+		# Raised when a delta response cannot be applied because its base does not match the base supplied by the caller.
+		class InvalidDeltaBaseError < Error
+		end
+
+		# Raised when VCDIFF data is malformed or uses an unsupported feature.
+		class VCDiffError < Error
+		end
+
 		# Raised when a singleton (e.g. `content-length`) header is duplicated in a request or response.
 		class DuplicateHeaderError < InvalidHeaderError
 			# @parameter key [String] The header key that was duplicated.
