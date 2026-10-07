@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add `Protocol::HTTP::Header::WWWAuthenticate`, a parser and encoder for `WWW-Authenticate` (and `Proxy-Authenticate`) challenges, preserving challenge order, unknown schemes, and duplicate parameters, supporting both `token68` and `auth-param` credentials, and reporting precise offsets for syntax errors.
+
 ## v0.72.0
 
   - Clarified body stream lifecycle and ownership, including the directional semantics of `Protocol::HTTP::Body::Stream#close_read`, `#close_write`, and `#close`, how premature input closure affects the associated HTTP exchange, and ownership of streams passed to `Streamable#call`.
