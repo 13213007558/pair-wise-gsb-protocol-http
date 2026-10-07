@@ -24,6 +24,7 @@ require_relative "header/trailer"
 require_relative "header/server_timing"
 require_relative "header/digest"
 require_relative "header/generic"
+require_relative "header/content_security_policy"
 
 require_relative "header/accept"
 require_relative "header/accept_charset"
@@ -413,6 +414,10 @@ module Protocol
 				
 				# Content integrity headers:
 				"digest" => Header::Digest,
+				
+				# Content security policy headers:
+				"content-security-policy" => Header::ContentSecurityPolicy,
+				"content-security-policy-report-only" => Header::ContentSecurityPolicyReportOnly,
 			}.tap{|hash| hash.default = Header::Generic}
 			
 			# Delete all header values for the given key, and return the merged value.
