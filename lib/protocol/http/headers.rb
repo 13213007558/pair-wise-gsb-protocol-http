@@ -413,6 +413,11 @@ module Protocol
 				
 				# Content integrity headers:
 				"digest" => Header::Digest,
+				
+				# Instance manipulation headers (RFC 3229):
+				"a-im" => Split,
+				"im" => Split,
+				"delta-base" => false,
 			}.tap{|hash| hash.default = Header::Generic}
 			
 			# Delete all header values for the given key, and return the merged value.
